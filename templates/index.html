@@ -3,8 +3,51 @@
 </head>
 <body>
     <div class="container" id="main">
-        <script src="https://www.paypal.com/sdk/js?client-id=AWkO4ZQvjZ39w9WCCchczLNk5Q-tyYDdqV9l9Uv591wikXfM48_YnfAMjUmGJ7qzVVvokdaZiuw_rdzC"></script>
-        <script>paypal.Buttons().render('#main');</script>
+        <!--
+        <script src="https://www.paypal.com/sdk/js?client-id=AWkO4ZQvjZ39w9WCCchczLNk5Q-tyYDdqV9l9Uv591wikXfM48_YnfAMjUmGJ7qzVVvokdaZiuw_rdzC&currency=BRL&locale=pt_BR"></script>
+        <script>
+        paypal.Button().render({
+            env: 'sandbox', // 'production'
+            commit: true,
+            payment: function() {
+                return paypal.request.post
+            },
+        }, '#main');
+        </script>
+        -->
+        <div id="paypal-button"></div>
+        <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+        <script>
+        var CREATE_PAYMENT_URL  = '/payment';
+        var EXECUTE_PAYMENT_URL = '/execute';
+
+        paypal.Button.render({
+
+            env: 'sandbox', // 'production'
+
+            commit: true, // 'Pay Now'
+
+            payment: function() {
+                return paypal.request.post(CREATE_PAYMENT_URL).then(function(data) {
+                    return data.paymentID;
+                });
+            },
+
+            onAuthorize: function(data) {
+                return paypal.request.post(EXECUTE_PAYMENT_URL, {
+                    paymentID: data.paymentID,
+                    payerID:   data.payerID
+                }).then(function(res) {
+
+                    console.log(res.success);
+                    alert(res.success);
+                    // pagamento completo
+                });
+            }
+
+        }, '#paypal-button');
+        </script>
     </div>
 </body>
 </html>
